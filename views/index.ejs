@@ -1,0 +1,162 @@
+
+<%-include("partials/header.ejs")%>
+<h1>Blog Website</h1>
+
+  <div id="post-form">
+    <h2>Create New Post</h2>
+    <button class="btn btn-primary" onclick="openCreateModal()">Create Post</button>
+  </div>
+  <% if(locals.db) { %>
+    <table>
+      <thead>
+        <tr>
+          <th>Sno.</th>
+          <th>Title</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+
+      <tbody>
+      <% for(let key in db) { %>
+
+        <tr>
+          <td id="rowId"><%= key   %></td>
+          <td id="Title"><%= db[key].title  %></td>
+          <td>
+            
+            <button class="btn btn-primary" onclick="openReadModal('<%= key %>')">Read</button>
+            <button class="btn btn-primary" onclick="openUpdateModal('<%= key %>')">Update</button>
+            <button class="btn btn-primary" onclick="openDeleteModal('<%= key %>')">Delete</button>
+          </td>
+        </tr>
+      <% } } %>
+        <!-- Add more rows for additional posts -->
+      </tbody>
+  </table>
+  
+  <!-- Create New Post Modal -->
+  <div id="createModal" class="modal">
+    <div class="modal-content">
+      <span class="close" onclick="closeCreateModal()">&times;</span>
+      <h2>Create New Post</h2>
+      <form id="postModalForm" method="post" action="/submit">
+        <label for="postTitle">Title:</label>
+        <input type="text" id="postTitle" name="postTitle" required><br>
+        <label for="postContent">Content:</label>
+        <textarea id="postContent" name="postContent" rows="4" required></textarea><br>
+        <input type="submit" class="btn btn-primary" value="Submit">
+      </form>
+    </div>
+  </div>
+
+  <!-- Read Post Modal -->
+  <div id="readModal" class="modal read-modal">
+    <div class="modal-content">
+      <span class="close" onclick="closeReadModal()">&times;</span>
+      <h2 id="R-Title"></h2>
+      <h4 id="R-Content"></h4>
+    </div>
+  </div>
+
+  <!-- Update Post Modal -->
+  <div id="updateModal" class="modal update-modal">
+    <div class="modal-content">
+      <span class="close" onclick="closeUpdateModal()">&times;</span>
+      <h2>Update Post</h2>
+      <form id="updateModalForm" action="/update" method="POST">
+        <input type="hidden" id="updateKey" name="updateKey" value="">
+        <label for="updateTitle">Title</label>
+        <input type="text" id="updateTitle" name="updateTitle" required><br>
+        <label for="updateContent">Content:</label>
+        <textarea id="updateContent" name="updateContent" rows="4" required></textarea><br>
+        <input type="submit" class="btn btn-primary" value="Update">
+
+
+      </form>
+      <!-- Add form for updating post content here -->
+    </div>
+  </div>
+
+  <!-- Delete Post Modal -->
+  <div id="deleteModal" class="modal delete-modal">
+    <div class="modal-content">
+      <span class="close" onclick="closeDeleteModal()">&times;</span>
+      <h2>Delete Post</h2>
+      <form action="/delete" method="POST">
+        <label for="deletePost">Are you sure you want to delete this post?</label>
+      
+            <input type="hidden" id="deleteKey" name="deleteKey" value="">
+
+            <input type="submit" class="btn btn-primary" value="Delete">
+      </form>
+    </div>
+  </div>
+
+  <script>
+    function openCreateModal() {
+      document.getElementById('createModal').style.display = 'block';
+    }
+
+    function closeCreateModal() {
+      document.getElementById('createModal').style.display = 'none';
+    }
+
+    function openReadModal(rowId) {
+      
+      
+     
+      $.ajax({
+     type: "POST",
+     url: "/read",
+     data: { 
+        rowId:rowId
+     },
+     success: function(response) {
+        console.log(response);
+        document.getElementById("R-Title").innerHTML="Title : " +response.title; 
+        document.getElementById("R-Content").innerHTML=response.content;   
+     } 
+     
+  });
+  document.getElementById('readModal').style.display = 'block';
+    }
+
+    function closeReadModal() {
+      document.getElementById('readModal').style.display = 'none';
+    }
+
+    function openUpdateModal(rowId) {
+       
+      document.getElementById('updateModal').style.display = 'block';
+      document.getElementById("updateKey").value=rowId;
+      
+      
+    }
+    
+    function closeUpdateModal() {
+      document.getElementById('updateModal').style.display = 'none';
+    }
+
+    function openDeleteModal(rowId) {
+      document.getElementById('deleteModal').style.display = 'block';
+      document.getElementById("deleteKey").value=rowId;
+    }
+
+    function closeDeleteModal() {
+      document.getElementById('deleteModal').style.display = 'none';
+    }
+
+    function submitPost() {
+      // Add logic to handle the submission of the new post (e.g., send to server)
+      // For simplicity, let's just close the modal in this example
+      closeCreateModal();
+    }
+
+    function deletePost() {
+      // Add logic to handle deleting a post
+      console.log('Delete post');
+      // For simplicity, let's just close the modal in this example
+      closeDeleteModal();
+    }
+  </script>
+
